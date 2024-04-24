@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import h5py
 
 
 class ReplayBuffer(object):
@@ -55,3 +56,14 @@ class ReplayBuffer(object):
 		self.state = (self.state - mean)/std
 		self.next_state = (self.next_state - mean)/std
 		return mean, std
+
+	def load_dataset(self, filename):
+		print(f'Loading data from {filename}...')
+		dataset = {}
+		with h5py.File(filename, 'r') as f:
+			for key in list(f.keys()):
+				if key == 'metadata' or key == 'd_actions':
+					continue
+				dataset[key] = f[key][()]
+		dataset['actions'] = dataset.pop('c_actions')
+		return dataset
